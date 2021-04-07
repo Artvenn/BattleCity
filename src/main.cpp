@@ -19,29 +19,11 @@ GLfloat colors[] = {
 
 
 /// Vertex shader source code ///
-const char* vertex_shader =
-"#version 400\n"
-"layout(location = 0) in vec3 vertex_position;"
-"layout(location = 1) in vec3 vertex_color;"
-"out vec3 color;"
-"void main() {"
-"   color = vertex_color;"
-"   gl_Position = vec4(vertex_position, 1.0);"
-"}";
-
-
-/// Fragment shader source code ///
-const char* fragment_shader =
-"#version 400\n"
-"in vec3 color;"
-"out vec4 frag_color;"
-"void main() {"
-"   frag_color = vec4(color, 1.0);"
-"}";
 
 
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
+int dddsa = 0;
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
@@ -68,7 +50,9 @@ int main(int argc, char** argv)
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     GLFWwindow* pWindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, "Battle City", nullptr, nullptr);
@@ -113,6 +97,7 @@ int main(int argc, char** argv)
             return -1;
         }
 
+        resourceManager.loadTexture("map_16x16.png", "res/textures/map_16x16.png");
         
         ///// Buffer for vertex points /////
         GLuint points_vbo = 0;
