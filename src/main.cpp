@@ -1,9 +1,13 @@
+#include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
+
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/Texture2D.h"
 #include "Resources/ResourceManager.h"
 
-#include <iostream>
+
 
 GLfloat point[] = {
      0.0f,  0.5f, 0.0f,
@@ -17,19 +21,21 @@ GLfloat colors[] = {
     0.0f, 0.0f, 1.0f
 };
 
+GLfloat texCoord[] = {
+    0.5f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f
+};
 
-/// Vertex shader source code ///
 
 
-int g_windowSizeX = 640;
-int g_windowSizeY = 480;
-int dddsa = 0;
+glm::ivec2 g_windowSize(640, 480);
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
-    g_windowSizeX = width;
-    g_windowSizeY = height;
-    glViewport(0, 0, g_windowSizeX, g_windowSizeY);
+    g_windowSize.x = width;
+    g_windowSize.y = height;
+    glViewport(0, 0, width, height);
 }
 
 void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mode)
@@ -55,7 +61,7 @@ int main(int argc, char** argv)
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    GLFWwindow* pWindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, "Battle City", nullptr, nullptr);
+    GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, "Battle City", nullptr, nullptr);
     if (!pWindow)
     {
         std::cout << "glfwCreateWindow failed!" << std::endl;
@@ -97,7 +103,7 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        resourceManager.loadTexture("map_16x16.png", "res/textures/map_16x16.png");
+        auto tex =  resourceManager.loadTexture("map_16x16.png", "res/textures/map_16x16.png");
         
         ///// Buffer for vertex points /////
         GLuint points_vbo = 0;
@@ -112,6 +118,11 @@ int main(int argc, char** argv)
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // makes buffer colors_vbo current
         glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // this func dispatches data into videocard memory from current GL_ARRAY_BUFFER
 
+        //Buffer for texture coordinates///
+        GLuint texCoor_vbo = 0;
+        glGenBuffers(1, &texCoor_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, texCoor_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord), texCoord, GL_STATIC_DRAW);
 
         GLuint vao = 0;
         glGenVertexArrays(1, &vao);
@@ -128,6 +139,15 @@ int main(int argc, char** argv)
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+        // Binding texture vbo into shader program //
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, texCoor_vbo);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+
+        pDefaultShaderProgram->use();
+        pDefaultShaderProgram->setInt("tex", 0);
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(pWindow))
         {
@@ -136,6 +156,7 @@ int main(int argc, char** argv)
 
             pDefaultShaderProgram->use();
             glBindVertexArray(vao);
+            tex->bind();
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             /* Swap front and back buffers */

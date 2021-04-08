@@ -15,6 +15,8 @@ namespace Renderer
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
 		ShaderProgram& operator=(ShaderProgram&& shaderProgram) noexcept;
 		ShaderProgram(ShaderProgram&& shaderProgram) noexcept;
+		
+		void setInt(const std::string& name, const GLint value);
 
 		bool isCompiled() const { return this->m_isCompiled; }
 		void use() const;
